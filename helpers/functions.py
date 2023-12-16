@@ -1,6 +1,7 @@
 from tqdm import tqdm
 import time
 from selenium.webdriver.common.by import By
+import os 
 
 def get_user_data(driver, data_type):
     last_found_text = -1
@@ -74,3 +75,11 @@ def load_seen_profiles(file_path):
                 seen_profiles[name] = True
     except: pass
     return seen_profiles
+
+def get_next_available_filename(filename, directory='tmp_data'):
+    index = 1
+    new_filename = f"{filename}{index}"
+    while os.path.exists(os.path.join(directory, f'{new_filename}.pkl')):
+        index += 1
+        new_filename = f"{filename}{index}"
+    return new_filename

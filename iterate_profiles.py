@@ -18,7 +18,7 @@ accounts = get_unchecked_accounts(account_list_pth)
     # , 'a', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd']
     
 
-def fetch_profile_data(account, pbar, semaphore):
+def fetch_profile_data(cookies_name, account, pbar, semaphore):
     with semaphore:
         driver = webdriver.Firefox(service=Service(webdriver_ff_pth))
         
@@ -26,7 +26,7 @@ def fetch_profile_data(account, pbar, semaphore):
             driver.get(f'https://www.instagram.com/{account}/')
             wait(0, "Starting Instagram")
             
-            with open('tmp_data/cookies.pkl', 'rb') as file:
+            with open(f'tmp_data/{cookies_name}', 'rb') as file:
                 cookies = pickle.load(file) 
                 for cookie in cookies:
                     driver.add_cookie(cookie)
@@ -77,7 +77,7 @@ def main():
     with tqdm(total=accounts_to_follow, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]") as pbar:
         
         for account in accounts:
-            thread = Thread(target=fetch_profile_data, args=(account, pbar, semaphore))
+            thread = Thread(target=fetch_profile_data, args=("cookies.pkl", account, pbar, semaphore))
             thread.start()
             threads.append(thread)
         

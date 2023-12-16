@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from helpers.settings import *
 from selenium.webdriver.firefox.service import Service
-from helpers.functions import append_account
+from helpers.functions import append_account, get_next_available_filename
 import time
 import pickle
 import os
@@ -40,14 +40,6 @@ def ask_filename():
 
     root.mainloop()
     return filename
-
-def get_next_available_filename(filename, directory='tmp_data'):
-    index = 1
-    new_filename = f"{filename}{index}"
-    while os.path.exists(os.path.join(directory, f'{new_filename}.pkl')):
-        index += 1
-        new_filename = f"{filename}{index}"
-    return new_filename
 
 theme = ask_filename()
 
