@@ -18,7 +18,7 @@ accounts = get_unchecked_accounts(account_list_pth)
     # , 'a', 'b', 'c', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd']
     
 
-def fetch_profile_data(cookies_name, account, pbar, semaphore):
+def fetch_profile_data(cookies_name, account, pbar, semaphore, lock, followed_accounts):
     with semaphore:
         driver = webdriver.Firefox(service=Service(webdriver_ff_pth))
         
@@ -52,8 +52,8 @@ def fetch_profile_data(cookies_name, account, pbar, semaphore):
             # no need for this check 
             # private_account = driver.find_element(By.XPATH, "//h2[text()='This Account is Private']") or False
             if (follower_difference(followers, following) > 0):
-                global followed_accounts
-                followed_accounts += 1
+                with lock:
+                    followed_accounts += 1
                 wait(1, f"Acquiring follower nr {followed_accounts + 1}", 1, pbar)
                 follow_button = driver.find_element(By.XPATH, "//button[.//div/div[text()='Follow']]")
                 mark_account(account_list_pth, account, True)
@@ -71,10 +71,10 @@ def fetch_profile_data(cookies_name, account, pbar, semaphore):
             driver.quit()
 
 def main():
-    semaphore = Semaphore(following_speed)
+    semaphore = Semaphore(default_following_speed)
     threads = []
 
-    with tqdm(total=accounts_to_follow, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]") as pbar:
+    with tqdm(total=default_accounts_to_follow, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]") as pbar:
         
         for account in accounts:
             thread = Thread(target=fetch_profile_data, args=("cookies.pkl", account, pbar, semaphore))
