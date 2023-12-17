@@ -20,7 +20,7 @@ def ask_filename():
         nonlocal link
         input_text = entry.get().strip()
         link_text = entry_link.get().strip()
-        if input_text and link_text:
+        if input_text != "" and link_text != "":
             filename = input_text
             link = link_text
             root.destroy()
@@ -36,14 +36,14 @@ def ask_filename():
     ttk.Style().configure('TButton', padding=6, relief='flat', background=button_color)
 
     # Layout
-    label = ttk.Label(root, text="Ievadi profilu tēmu:")
+    label = ttk.Label(root, text="Tēma:", background=text_widget_bg, foreground=text_color)
     label.pack(padx=10, pady=10)
 
     entry = ttk.Entry(root)
     entry.pack(padx=10, pady=10)
     entry.focus()
 
-    label_link = ttk.Label(root, text="Profils kura followerus skatities vai postsm kura laikus skatities:")
+    label_link = ttk.Label(root, text="Profils kura followerus skatīties:", background=text_widget_bg, foreground=text_color)
     label_link.pack(padx=10, pady=10)
 
     entry_link = ttk.Entry(root)
@@ -79,7 +79,7 @@ with tqdm(total=process_progress) as pbar:
     wait(1)
     driver.find_element(by=By.XPATH, value="//button[text()='Not Now']").click()
     wait(1, "Skipping save login", 2, pbar)
-    driver.get(f'https://www.instagram.com/{account}/followers/')
+    driver.get(f'https://www.instagram.com/{from_where_to_get_accounts}/followers/')
     wait(5, "Getting followers", 5, pbar)
     container = driver.find_element(By.CLASS_NAME, "_aano")
     # innermost_divs = driver.find_elements(By.CSS_SELECTOR, '._aano > div > div')
@@ -113,7 +113,7 @@ with tqdm(total=process_progress) as pbar:
         wait(3)
         new_height = driver.execute_script("return arguments[0].scrollHeight", container)
         if new_height == last_height: 
-            tqdm.write(f"Ran out of {account} followers - quitting!")
+            tqdm.write(f"Ran out of {from_where_to_get_accounts} followers - quitting!")
             break 
         last_height = new_height
 
