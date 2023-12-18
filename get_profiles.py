@@ -9,6 +9,55 @@ from helpers.functions import wait, append_account, load_seen_profiles
 import pickle
 from tqdm import tqdm
 
+import tkinter as tk
+from tkinter import ttk  
+from tkinter import simpledialog
+
+
+def ask_filename():
+    def on_ok():
+        nonlocal filename
+        nonlocal link
+        input_text = entry.get().strip()
+        link_text = entry_link.get().strip()
+        if input_text and link_text:
+            filename = input_text
+            link = link_text
+            root.destroy()
+
+    filename = None
+    link = None
+
+    root = tk.Tk()
+    root.title("Tēmas izvēle")
+
+    # Styling
+    root.configure(bg=background_color)
+    ttk.Style().configure('TButton', padding=6, relief='flat', background=button_color)
+
+    # Layout
+    label = ttk.Label(root, text="Ievadi profilu tēmu:")
+    label.pack(padx=10, pady=10)
+
+    entry = ttk.Entry(root)
+    entry.pack(padx=10, pady=10)
+    entry.focus()
+
+    label_link = ttk.Label(root, text="Profils kura followerus skatities vai postsm kura laikus skatities:")
+    label_link.pack(padx=10, pady=10)
+
+    entry_link = ttk.Entry(root)
+    entry_link.pack(padx=10, pady=10)
+    entry_link.focus()
+
+    ok_button = ttk.Button(root, text="OK", command=on_ok)
+    ok_button.pack(pady=(0, 10))
+
+    root.mainloop()
+    return filename, link
+
+theme, from_where_to_get_accounts = ask_filename()
+
 process_progress = 100
 progress_increment = 3  
 seen_profiles = load_seen_profiles(account_list_pth)
@@ -38,7 +87,8 @@ with tqdm(total=process_progress) as pbar:
 
     last_height = driver.execute_script("return arguments[0].scrollHeight", container)
 
-    while len(good_profiles) < accounts_to_follow:
+    # while len(good_profiles) < accounts_to_follow:
+    while True:
         try:
             innermost_divs = container.find_elements(By.XPATH, './/div')
             for div in innermost_divs:
@@ -51,41 +101,7 @@ with tqdm(total=process_progress) as pbar:
                     if (span.text in seen_profiles): continue
                     seen_profiles[span.text] = True
                     tqdm.write(span.text)
-                    append_account(account_list_pth, span.text)
-                    # account_name = span.text
-                
-                    # img_element = div.find_element(By.XPATH, f'.//img[@alt="{span.text}\'s profile picture"]')
-                    # tqdm.write("found image")
-                    # action = ActionChains(driver)
-                    # # open image
-                    # driver.execute_script("var event = new MouseEvent('mouseover', { 'view': window, 'bubbles': true, 'cancelable': true }); arguments[0].dispatchEvent(event);", img_element)
-                    # wait(5)
-                    # tqdm.write("finding specific follower count...")
-                    
-                    # following_elements = driver.find_elements(By.XPATH, "//span[text()='following']")
-                    # for el in following_elements:
-                    #     try:
-                    #         sibling_span = el.find_element(By.XPATH, "../preceding-sibling::div/span")
-                    #         following = sibling_span.text
-                    #     except Exception as e:
-                    #         tqdm.write("Nevareja iegut skaitu: ", e)
-                    # follower_elements = driver.find_elements(By.XPATH, "//span[text()='followers']")
-                    # for el in follower_elements:
-                    #     try:
-                    #         sibling_span = el.find_element(By.XPATH, "../preceding-sibling::div/span")
-                    #         followers = sibling_span.text
-                    #     except Exception as e:
-                    #         tqdm.write("Nevareja iegut skaitu: ", e)
-                    # tqdm.write(f"user {account_name} is following {follower_difference(followers, following)} more people than he has followers", end = ": ")
-                    # if (follower_difference(followers, following)):
-                    #     wait(1, f"Acquiring follower nr {len(good_profiles) + 1}", 80 / accounts_to_follow, pbar)
-                    #     good_profiles.append(account_name)
-                    #     tqdm.write("Can follow!!!")
-                    #     if (len(good_profiles) > accounts_to_follow):
-                    #         break
-                    # else :
-                    #     tqdm.write("Doesnt fall into criteria... :(")
-
+                    append_account(account_list_pth + f"\\{theme}_accounts", span.text)
                 except Exception as e:
                     # tqdm.write(str(e))
                     pass                
